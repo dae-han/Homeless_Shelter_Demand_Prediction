@@ -26,16 +26,21 @@ def acf_pacf(series_to_plot, n_lag):
     plt.ylabel('partial autocorrelation')
     plt.xlabel('lags');
     
-def evaluate(data_to_evaluate, residual):
+def evaluate(data_to_evaluate, residual, title_string = 'Residual Plot', figure_size = (12,5)):
 
     """
     make residual graphs and print out MSE 
     """
+    import numpy as np
     import matplotlib.pyplot as plt
 
-    plt.figure(figsize = (12,5))
+    plt.figure(figsize = figure_size)
     plt.scatter(data_to_evaluate.index, residual)
-    plt.title('Residuals')
+    plt.title(title_string, fontsize = 20)
+    plt.ylabel('Residual', fontsize = 20)
+    plt.xlabel('Date', fontsize = 20)
+    plt.xticks(fontsize = 11)
+    plt.yticks(fontsize = 11)
     plt.axhline(0, color='red')
 
-    return {"mean square error": sum(np.square(residual)) / len(residual)}
+    return {"root mean square error": np.sqrt(sum(np.square(residual)) / len(residual))}
