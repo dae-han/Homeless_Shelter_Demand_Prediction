@@ -11,3 +11,5 @@
 # ignore a directory name anywhere in the repo
 **/.ipynb_checkpoints
 **/.DS_Store
+
+**/__pycache__

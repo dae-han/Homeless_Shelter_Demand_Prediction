@@ -1,4 +1,5 @@
 def adf(series_to_try):
+    # Code written by Joseph Nelson.
     """
     a wrapper around the Augmented Dickey-Fuller test to provide both results and context for the output.
     """
