@@ -13,12 +13,16 @@ import plotly.graph_objs as go
 from app import app
 from dash.dependencies import Input, Output
 
+from sklearn.model_selection import train_test_split
+from statsmodels.tsa.statespace.sarimax import SARIMAX
+from sklearn.metrics import mean_squared_error
+
 if 'DYNO' in os.environ:
     app_name = os.environ['DASH_APP_NAME']
 else:
     app_name = 'dash-timeseriesplot'
 
-"""Data Query Start--------------------------------------"""
+"""Data Query Start"""
 # Load your PostgreSQL credential to `database_creds`
 database_creds_file = open('../database_cred.json', 'r')
 database_creds = json.loads(database_creds_file.read())
@@ -40,11 +44,26 @@ weekly_df.index = pd.to_datetime(weekly_df['date_of_census'])
 weekly_df = weekly_df.drop('date_of_census', axis = 1)
 """Data Query Done--------------------------------------"""
 
+
+"""Fit the model"""
+# Train / Test dataset split. Test size is 0.25.
+train_test_cut = round(weekly_df.shape[0] * 0.75)
+train = weekly_df['total_individuals_in_shelter'].iloc[:train_test_cut]
+test = weekly_df['total_individuals_in_shelter'].iloc[train_test_cut:]
+
+# Fit the model
+model = SARIMAX(endog = train,
+                order = (0, 1, 0),              # (p, d, q)
+                seasonal_order = (2, 2, 0, 51), # (P, D, Q, S)
+                freq = 'W-SUN').fit()
+"""Fit the model Done--------------------------------------"""
+
+
 app = dash.Dash(
     __name__,
     meta_tags=[{"name": "viewport", "content": "width=device-width"}])
 
-"""Describe the layout/ UI of the app----------------------------"""
+"""Describe the layout/ UI of the app"""
 # Add dropdown options
 option_list = []
 for col in weekly_df.columns:
@@ -52,7 +71,7 @@ for col in weekly_df.columns:
     option_list.append(elem)
 
 app.layout = html.Div([
-            html.H1("Sheleterd Homeless Population Forecast in New York",style={'textAlign': 'center','fontFamily':'georgia'}),
+            html.H1("Sheltered Homeless Population Forecast in New York",style={'textAlign': 'center','fontFamily':'georgia'}),
 
             dcc.Dropdown(id='my-dropdown',
                         options = option_list,
@@ -64,8 +83,12 @@ app.layout = html.Div([
                                "width": "60%",
                                'fontFamily':'georgia'}),
 
+            html.H3(id = 'message', style={'textAlign': 'center','fontFamily':'georgia'}),
+
             dcc.Graph(id='my-graph'),
-            html.H3("Number of weeks to forecast", style={'textAlign': 'center','fontFamily':'georgia', 'margin-top': '0em'}),
+
+            html.H3 ("Number of weeks to forecast", style={'textAlign': 'center','fontFamily':'georgia', 'margin-top': '0em'}),
+
             dcc.Slider(id='week-slider',
                        min=0,
                        max=52,
@@ -81,30 +104,64 @@ dropdown_dict = {}
 for option in option_list:
     dropdown_dict[option['value']] = option['label']
 
-@app.callback(Output('my-graph', 'figure'),
-              [Input('my-dropdown', 'value')])
-def update_graph(selected_dropdown_value):
+@app.callback([Output('my-graph', 'figure'),
+               Output('message', 'children')],
+              [Input('my-dropdown', 'value'),
+               Input('week-slider','value')])
+def update_graph(selected_dropdown_value, num_week_to_predict):
     dropdown = dropdown_dict
     actual = []
-    # prediction = []
-    for col_name in selected_dropdown_value:
-        actual.append(
-        go.Scatter(x = weekly_df.index, \
-                   y = weekly_df.loc[:,col_name],
-                   mode='lines',
-                   opacity=0.7,
-                   name=f'Actual {dropdown[col_name]}',
-                   textposition='bottom center'))
+    prediction = []
+    score = None
 
-        # trace2.append(
-        # go.Scatter(x=df[df["Stock"] == stock]["Date"],
-        #            y=df[df["Stock"] == stock]["Close"],
-        #            mode='lines',
-        #            opacity=0.6,
-        #            name=f'Predicted {dropdown[stock]}',
-        #            textposition='bottom center'))
+    if num_week_to_predict == 0:
+        for col_name in selected_dropdown_value:
+            actual.append(
+            go.Scatter(x = weekly_df.index, \
+                       y = weekly_df.loc[:,col_name],
+                       mode='lines',
+                       opacity=0.7,
+                       name=f'Actual {dropdown[col_name]}',
+                       textposition='bottom center'))
 
-    traces = [actual]
+    elif num_week_to_predict > 0 and len(selected_dropdown_value) == 1:
+        for col_name in selected_dropdown_value:
+            actual.append(
+            go.Scatter(x = weekly_df.index, \
+                       y = weekly_df.loc[:,col_name],
+                       mode='lines',
+                       opacity=0.7,
+                       name=f'Actual {dropdown[col_name]}',
+                       textposition='bottom center'))
+
+            # Generate predictions based on test set.
+            preds = model.predict(start=test.index[0], # X_test data range
+                                  end=pd.date_range(start=test.index[-1], periods=num_week_to_predict, freq = 'W-SUN')[-1])
+
+            prediction.append(
+            go.Scatter(x = preds.index,
+                       y = preds.values,
+                       mode='lines',
+                       opacity=0.6,
+                       name=f'Forecasted number of individuals in shelter',
+                       textposition='bottom center'))
+
+        score = f"The forecast has an error range of {int(np.sqrt(mean_squared_error(test, preds[:len(test)])))} people. [Metric: Root mean square error]"
+
+    else:
+        prediction = []
+        score = "Forecasting is available only for the number of total individuals in shelter at the moment"
+        for col_name in selected_dropdown_value:
+            actual.append(
+            go.Scatter(x = weekly_df.index, \
+                       y = weekly_df.loc[:,col_name],
+                       mode='lines',
+                       opacity=0.7,
+                       name=f'Actual {dropdown[col_name]}',
+                       textposition='bottom center'))
+
+
+    traces = [actual, prediction]
     data = [val for sublist in traces for val in sublist]
 
     figure = {'data': data,
@@ -113,7 +170,7 @@ def update_graph(selected_dropdown_value):
 
                 height=600,
 
-                title=f"Population of {', '.join(str(dropdown[i]) for i in selected_dropdown_value)} Over Time",
+                title=f"{', '.join(str(dropdown[i]) for i in selected_dropdown_value)} Over Time",
 
                 xaxis={"title":"Date",
                      'rangeselector': {'buttons': list([{'count': 1, 'label': '1M', 'step': 'month', 'stepmode': 'backward'},{'count': 6, 'label': '6M', 'step': 'month', 'stepmode': 'backward'},{'step': 'all'}])},
@@ -121,7 +178,8 @@ def update_graph(selected_dropdown_value):
                      'type': 'date'},
 
                 yaxis={"title":"Population"})}
-    return figure
+
+    return figure, score
 
 server = app.server
 
