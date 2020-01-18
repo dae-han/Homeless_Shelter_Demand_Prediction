@@ -8,12 +8,10 @@ In this project, I built a time series model to forecast the total number of ind
 
 ## About This Repository
 
-<img src = "./production/assets/flow.png" width="500"/>
+<img src = "./production/assets/flow.png" width="800"/>
 
 This project is comprise of three big parts.
 
 1) [Database construction](https://github.com/dae-han/nyc_homeless_pop_prediction/blob/master/production/1_Data_Wrangling%2BDatabase_Construction.ipynb)
-
 2) [Exploratory data analysis (EDA)](https://github.com/dae-han/nyc_homeless_pop_prediction/blob/master/production/3_EDA.ipynb)
-
 3) [Modeling](https://github.com/dae-han/nyc_homeless_pop_prediction/blob/master/production/4_SARIMA_Time_Series_Analysis.ipynb)
