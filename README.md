@@ -27,3 +27,7 @@ Database was constructed to prevent data loss and to accumulate all updated data
 ### 2. Exploratory Data Analysis and Modeling
 <img src="production/assets/total.png" width="500"/>
 <img src="production/assets/seasonal.png" width="500"/>
+
+The total individuals in DHS Shelter increased rapidly from 2014 to 2015 and showed gradual increase until 2017. From 2017 until now, the upward trend has been stagnant.
+
+This dataset also exhibit a seasonal trend or seasonality. Towards the end of each year through the beginning of the next year, the population in the shelter increases. This seasonality was not prominent from 2013 to 2014 and 2015 to 2016.
