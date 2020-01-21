@@ -71,4 +71,14 @@ In order to build a time series model, three terms, `p`, `d`, and `q` was define
 
 ### 4. Deployment
 
-For the deployment of the model,
+For the visualization of the model, I used [Dash by Plotly](https://plot.ly/dash/).
+
+#### Opening page
+<img src="production/assets/dash_first.png" width="650"/>
+
+#### Prediction
+<img src="production/assets/dash_predict45.png" width="650"/>
+
+
+## Next Step
+<img src="production/assets/dash_next_step.png" width="650"/>
