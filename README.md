@@ -2,6 +2,8 @@
 
 ## Problem Statement
 
+<img src = "./production/assets/readme_intro.png" width="800"/>
+
 In this project, I built a time series model to forecast the total number of individuals sheltered by the NYC Department of Homeless Services (DHS). I used DHS Daily Report publicly available from [NYC Open Data](https://opendata.cityofnewyork.us) to build Time Series model. I aimed to help understand homeless communities better by examining different factors that change the number of individuals in DHS shelter and to help better prepare for those who are in need of a space at a shelter by forecasting the general demand.
 
 ---
@@ -76,9 +78,25 @@ For the visualization of the model, I used [Dash by Plotly](https://plot.ly/dash
 #### Opening page
 <img src="production/assets/dash_first.png" width="650"/>
 
-#### Prediction
+#### Making Prediction
 <img src="production/assets/dash_predict45.png" width="650"/>
 
 
 ## Next Step
+
+#### Forecast demographic breakdowns
+
 <img src="production/assets/dash_next_step.png" width="650"/>
+
+Currently, forecasting is available for the total number of individuals in the DHS shelter but not for the demographic breakdowns. By building a time series model for each demographic breakdown categories, we can forecast the demographic breakdowns as well. This can help us better understand the changes in certain group's representation in the homeless shelter over time, providing insights to the homeless issue in New York.
+
+#### Try exogenous features (VAR model)
+
+While SARIMA model uses the target's past trends to make predictions, different features can also be used to help make better predictions, if the features are affected by or affect the target feature's trends. The different feature or features are called 'exogenous features'. Example of some of the exogenous features that can be tested are, housing affordability, national medical debt or natural language analysis such as sentiment analysis on social media posts discussing homelessness.
+
+What makes it difficult to incorporate exogenous features is that weekly updates needs to be available for the exogenous features. The current model uses the target variable from a data source that provides daily updates and the data is resampled into a weekly average dataset. If any of the exogenous features fails to provide weekly update, the model will fail to make the predictions. In order to tackle this issue, I plan to use shell-scripting to automate the web-scraping process and scrape the daily regularly.
+
+## Source
+
+[NYC Open Data](https://opendata.cityofnewyork.us)
+[Dash by Plotly](https://plot.ly/dash/)
