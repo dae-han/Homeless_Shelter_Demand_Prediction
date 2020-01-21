@@ -98,5 +98,6 @@ What makes it difficult to incorporate exogenous features is that weekly updates
 
 ## Source
 
-[NYC Open Data](https://opendata.cityofnewyork.us)
-[Dash by Plotly](https://plot.ly/dash/)
+1. [NYC Open Data](https://opendata.cityofnewyork.us)
+2. [Dash by Plotly](https://plot.ly/dash/)
+3. [Coalition for the homeless](https://www.coalitionforthehomelss.org)
