@@ -24,10 +24,51 @@ The homeless shelter population is documented on DHS Daily Report and it is upda
 
 Database was constructed to prevent data loss and to accumulate all updated data. The number of data that can be scraped each time is limited and this means as new data is updated, older data can not be accessed. In order to prevent this, datasets that were scraped initially were added to the database and the daily update was added to the dataset.
 
-### 2. Exploratory Data Analysis and Modeling
+### 2. Exploratory Data Analysis (EDA)
+
 <img src="production/assets/total.png" width="500"/>
 <img src="production/assets/seasonal.png" width="500"/>
 
 The total individuals in DHS Shelter increased rapidly from 2014 to 2015 and showed gradual increase until 2017. From 2017 until now, the upward trend has been stagnant.
 
-This dataset also exhibit a seasonal trend or seasonality. Towards the end of each year through the beginning of the next year, the population in the shelter increases. This seasonality was not prominent from 2013 to 2014 and 2015 to 2016.
+This dataset also exhibit a seasonal trend or seasonality. Towards the end of each year through the beginning of the next year, the population in the shelter increases.
+
+### 3. Modeling
+
+In order to build a time series model, three terms, `p`, `d`, and `q` was defined.
+
+`p` (AR: AutoRegression)
+- The term `p` is used to have the model comprehend a long term trend in the data. The Partial Autocorrelation Function (PACF) plot below can be used to identify the term `p`. In the PACF plot below, a sharp cut-off in lag 3 was identifed. Lag 1 value was positive and, in such pattern, `p` term is the lag right before the sharpt cut-off. Therefore, **`p` was selected to be 1**
+
+<img src="production/assets/pacf.png" width="400"/>
+
+`d` (I: Integration)
+- The term `d` is used to make the data stationary. Augmented Dickey-Fuller (ADF) Test was used to determine if the data was stationary. If the ADF test result indicated that the data was not stationary, the data was differenced until stationarity was observed. For the weekly DHS shelter population dataset, stationarity was observed when the dataset was differenced once. Therefore, **`d` was selected to be 1**.
+
+`q` (MA: Moving Average)
+- The term `q` is used to help the model understand short and sudden fluctuation in the dataset. In order to determine the term `q`, Autocorrelation Fucntion (ACF) plot can be used. In ACF plot below, no sharp cut-off was observed, which indicates that there is no sudden fluctuation in the data for the model to learn. Therefore, **`q` is selected to be 0**.
+
+<img src="production/assets/acf.png" width="400"/>
+
+---
+
+> **ARIMA (1, 1, 0) model**
+
+<img src="production/assets/arima.png" width="650"/>
+
+- The prediction converged quickly and failed to make meaningful predictions.
+- Root mean square error (RMSE): 1834
+
+---
+
+> **SARIMA (1, 1, 0) x (2, 2, 0, 51)**
+
+<img src="production/assets/sarima.png" width="650"/>
+
+- Grid Search was used to find the seasonal order terms that optimizes the result.
+- Using seasonal order terms significantly improved the performance of the model.
+- Root mean square error (RMSE): 560
+
+### 4. Deployment
+
+For the deployment of the model,
