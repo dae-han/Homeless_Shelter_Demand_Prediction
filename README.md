@@ -18,10 +18,12 @@ This project is comprise of four big parts.
 4) [Deployment](https://github.com/dae-han/nyc_homeless_pop_prediction/blob/master/production/dash_app/run.py)
 ## Executive Summary
 
-### Data
+### 1. Database Construction
 
 The homeless shelter population is documented on DHS Daily Report and it is updated daily on [NYC Open Data](https://opendata.cityofnewyork.us) website. The data from the report can be accessed through Socrata Open Data API (SODA). This dataset contains the number of individuals sheltered by DHS and their demographic breakdowns such as total number of women or total number of children.
 
 Database was constructed to prevent data loss and to accumulate all updated data. The number of data that can be scraped each time is limited and this means as new data is updated, older data can not be accessed. In order to prevent this, datasets that were scraped initially were added to the database and the daily update was added to the dataset.
 
-### Exploratory Data Analysis and Modeling
+### 2. Exploratory Data Analysis and Modeling
+<img src="production/assets/total.png" width="500"/>
+<img src="production/assets/seasonal.png" width="500"/>
