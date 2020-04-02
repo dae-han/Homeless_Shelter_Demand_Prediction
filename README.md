@@ -1,4 +1,4 @@
-# nyc_homeless_pop_prediction
+# Predicting the Demand for Homeless Shelter
 
 ## Problem Statement
 
