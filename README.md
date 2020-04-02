@@ -1,4 +1,4 @@
-# Predicting the Demand for Homeless Shelter
+# Predicting the Demand for Homeless Shelters
 
 ## Problem Statement
 
